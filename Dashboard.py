@@ -18,9 +18,6 @@ alt.themes.enable("dark")
 carbon_emissions = pd.read_csv(r"C:\Users\arpan\Desktop\datasets\annual-co2-emissions-per-country\annual-co2-emissions-per-country.csv")
 annual_temp = pd.read_csv(r"C:\Users\arpan\Desktop\datasets\annual-temperature-anomalies\annual-temperature-anomalies.csv")
 ghg_emissions = pd.read_csv(r"C:\Users\arpan\Desktop\datasets\ghg-emissions-by-gas\ghg-emissions-by-gas.csv")
-treecover = pd.read_csv(r"C:\Users\arpan\Desktop\datasets\Global Primary Forest loss\treecover_extent_2000_in_primary_forests_2001_tropics_only__ha.csv")
-treeloss = pd.read_csv(r"C:\Users\arpan\Desktop\datasets\Global Primary Forest loss\treecover_loss_in_primary_forests_2001_tropics_only__ha.csv")
-treecover_loss = pd.read_csv(r"C:\Users\arpan\Desktop\datasets\Global Primary Forest loss\treecover_loss__ha.csv")
 data_iso = pd.read_csv(r"C:\Users\arpan\Desktop\datasets\Global Primary Forest loss\iso_metadata.csv")
 energy_subs = pd.read_csv(r"C:\Users\arpan\Desktop\datasets\global-energy-substitution\global-energy-substitution.csv")
 sea_level = pd.read_csv(r"C:\Users\arpan\Desktop\datasets\sea-level\sea-level.csv")
@@ -78,17 +75,16 @@ datasets = {
     "Annual CO2 Emissions": carbon_emissions,
     "Annual Temperature Anomalies": annual_temp,
     "GHG Emissions by Gas": ghg_emissions,
-    "Deforestation" : treecover_loss
+   
 }
 
 color_mapping = {
     "Annual CO2 Emissions": "Annual CO₂ emissions",
     "Annual Temperature Anomalies": "Temperature anomaly",
     "GHG Emissions by Gas": "Annual CO₂ emissions", 
-    "Deforestation":"umd_tree_cover_loss__ha"
 }
 
-
+# Calculations
 # surface temperature increment calculations
 world_temp = annual_temp[annual_temp['Entity']== 'World']
 last_decade_temp = world_temp[(world_temp['Year'] >= 2014) & (world_temp['Year'] <= 2024)]
@@ -111,15 +107,7 @@ percentage_no2 = (inc_no2 / start_no2) * 100
 percentage_nh3 = (inc_nh3/ start_nh3) * 100
 
 
-#deforestation calulations
-treecover_loss = treecover_loss.merge(data_iso[['iso', 'name']], on="iso", how="left")
-treecover_loss.rename(columns={"name": "Entity"}, inplace=True)
-treecover_loss.rename(columns={"umd_tree_cover_loss__year":"Year"}, inplace=True)
-treecover = treecover.merge(data_iso, on="iso", how="left")
-treecover.rename(columns={"name": "Entity"}, inplace=True)
-treecover['Tree_Cover_Percentage_2000'] = (treecover['umd_tree_cover_extent_2000__ha'] / treecover['area__ha']) * 100
-treecover = treecover[['Entity', 'Tree_Cover_Percentage_2000']]
-percentage_of_tree_2000 = treecover['Tree_Cover_Percentage_2000']
+
 
 #sealevel data preparation
 sea_level['Day'] = pd.to_datetime(sea_level['Day'])
@@ -136,11 +124,12 @@ total_sea_rise_mm = latest_value - earliest_value
 sea_level_percentage_change = (total_sea_rise_mm / earliest_value) * 100
 
 #Energy calculations and data preparation
+energy_subs = energy_subs.drop(['Entity', 'Code'], axis=1)
 energy_subs.columns = [col.split('(')[0].strip() for col in energy_subs.columns]
     # Define renewable and non-renewable energy sources
 renewable_sources = ['Solar', 'Wind', 'Hydropower', 'Other renewables', 'Biofuels', 'Traditional biomass']
 non_renewable_sources = ['Nuclear', 'Gas', 'Oil', 'Coal']
-    # Filter the data for the last decade (e.g., from 2012 to 2022)
+    # Filter the data for the last half decade (e.g., from 2018 to 2022)
 last_decade_data = energy_subs[energy_subs['Year'].between(2018, 2022)]
 last_decade_data = energy_subs[energy_subs['Year'].between(2018, 2022)].copy()  # Make a copy of the slice
 last_decade_data.loc[:, 'Renewable Energy Total'] = last_decade_data[renewable_sources].sum(axis=1)
@@ -156,7 +145,7 @@ non_renewable_percentage_change = ((non_renewable_2022 - non_renewable_2018) / n
 
 
 # Main Page
-col = st.columns((2, 6), gap='medium')
+col = st.columns((1.6, 6.4), gap='medium')
 # Column 1
 with col[0]:
     # Surface Temperature Increment
@@ -200,7 +189,7 @@ with col[1]:
         # Dropdown to choose the dataset (for example: CO2 emissions, temperature anomalies)
         dataset_choice = st.selectbox(
             "Select Dataset to Visualize",
-            ["Annual CO2 Emissions", "Annual Temperature Anomalies", "GHG Emissions by Gas", "Deforestation rate"]
+            ["Annual CO2 Emissions", "Annual Temperature Anomalies", "GHG Emissions by Gas"]
         )
         # Filter your data based on the dataset choice (use corresponding DataFrame for selected dataset)
         if dataset_choice == "Annual CO2 Emissions":
@@ -209,13 +198,49 @@ with col[1]:
             data_to_plot = annual_temp  # Use temperature anomaly dataset
         elif dataset_choice == "GHG Emissions by Gas":
             data_to_plot = ghg_emissions  # Use GHG emissions dataset
-        elif dataset_choice == "Deforestation rate":
-            data_to_plot = treecover_loss
     with col2: 
-        st.write('Energy type classification')
-        
+        # Option to Select Chart Type (Horizontal)
+        chart_type = st.radio("Energy type classification",('Bar Chart', 'Line Chart'), horizontal=True)
 
+        if chart_type == 'Bar Chart':
+            # Dropdown for Year Selection
+            years = energy_subs['Year'].unique()
+            selected_year = st.selectbox('Select Year:', sorted(years))
 
+            # Filter Data for Selected Year
+            year_data = energy_subs[energy_subs['Year'] == selected_year].set_index('Year').transpose()
+            year_data = year_data.reset_index()
+            year_data.columns = ['Energy Source', 'Energy (TWh)']
+
+            # Bar Chart
+            fig = px.bar(
+                year_data,
+                x='Energy Source',
+                y='Energy (TWh)',
+                title=f'Energy Substitution in {selected_year} (TWh)',
+                color='Energy (TWh)',
+                color_continuous_scale='Blues'
+            )
+            st.plotly_chart(fig)
+
+        else:
+            # Line Chart (Across All Years)
+            line_data = energy_subs.set_index('Year').transpose()
+            line_data = line_data.reset_index().melt(id_vars='index', var_name='Year', value_name='Energy (TWh)')
+            line_data.rename(columns={'index': 'Energy Source'}, inplace=True)
+
+            # Line Chart
+            fig = px.line(
+                line_data,
+                x='Year',
+                y='Energy (TWh)',
+                color='Energy Source',
+                title='Energy Substitution Over the Years',
+                markers=True
+            )
+
+           
+            st.plotly_chart(fig)
 
     st.markdown(f"#### {dataset_choice} by Country (Interactive Map)")
     
@@ -234,25 +259,18 @@ with col[1]:
     # Retrieve the column name for the selected dataset from the mapping
     color_column = color_mapping.get(dataset_choice, None)
     # Map Visualization (Choropleth map)
-    if datasets == "Deforestation rate":
-        fig = px.choropleth(
-        selected_year_data,
-        locations="Entity",
-        locationmode="country names",
-        color="Remaining_Tree_Cover_Percentage",
-        color_continuous_scale="greens",
-        labels={"Remaining_Tree_Cover_Percentage": "Remaining Tree Cover (%)"},
-        title="Global Deforestation Map",
-        )
-    else:
-        fig = px.choropleth(
-        selected_year_data,
-        locations="Entity",
-        locationmode="country names",
-        color=color_column,  # Or other relevant column based on dataset
-        color_continuous_scale="reds",
-        title=f"{dataset_choice} for {year_slider}",
-        labels={"Annual CO₂ emissions": "CO₂ Emissions (Tons)", "Temperature anomaly":"Temperature(°C)"},
+    lower_bound = data_to_plot[color_column].quantile(0.05)
+    upper_bound = data_to_plot[color_column].quantile(0.95)
+    
+    fig = px.choropleth(
+    selected_year_data,
+    locations="Entity",
+    locationmode="country names",
+    color=color_column,
+    range_color=[lower_bound, upper_bound],    
+    color_continuous_scale="RdBu_r",
+    title=f"{dataset_choice} for {year_slider}",
+    labels={"Annual CO₂ emissions": "CO₂ Emissions (Tons)", "Temperature anomaly":"Temperature(°C)"},
     )
          
     st.plotly_chart(fig)

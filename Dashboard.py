@@ -44,7 +44,7 @@ def make_donut(input_response, input_text, input_color):
       "% value": [100, 0]
   })
     
-  plot = alt.Chart(source).mark_arc(innerRadius=45, cornerRadius=25).encode(
+  plot = alt.Chart(source).mark_arc(innerRadius=55).encode(
       theta="% value",
       color= alt.Color("Topic:N",
                       scale=alt.Scale(
@@ -53,10 +53,10 @@ def make_donut(input_response, input_text, input_color):
                           # range=['#29b5e8', '#155F7A']),  # 31333F
                           range=chart_color),
                       legend=None),
-  ).properties(width=130, height=130)
+  ).properties(width=150, height=150)
     
-  text = plot.mark_text(align='center', color="#29b5e8", font="Lato", fontSize=32, fontWeight=700, fontStyle="italic").encode(text=alt.value(f'{input_response:.1f} %'))
-  plot_bg = alt.Chart(source_bg).mark_arc(innerRadius=45, cornerRadius=20).encode(
+  text = plot.mark_text(align='center', color="#29b5e8", font="Lato", fontSize=28, fontWeight=500, fontStyle="italic").encode(text=alt.value(f'{input_response:.1f} %'))
+  plot_bg = alt.Chart(source_bg).mark_arc(innerRadius=55).encode(
       theta="% value",
       color= alt.Color("Topic:N",
                       scale=alt.Scale(
@@ -64,7 +64,7 @@ def make_donut(input_response, input_text, input_color):
                           domain=[input_text, ''],
                           range=chart_color),  # 31333F
                       legend=None),
-  ).properties(width=130, height=130)
+  ).properties(width=150, height=150)
   return plot_bg + plot + text
 
 
@@ -166,20 +166,20 @@ with col[0]:
         )
     
     st.divider()
-    st.markdown('### Greenhouse Gas Emissions (Last Decade)')
+    st.markdown('#### Greenhouse Gas Emissions (Last Decade)')
     col1, col2 = st.columns(2)
 
     with col1:
         st.metric(
-            label="Nitrous Oxide (NO₂) Increment",
-            value=f"{percentage_no2:.2f}%",
+            label="Nitrous Oxide (NO₂)",
+            value=f"↑{percentage_no2:.2f} %",
             delta_color="inverse"
         )
 
     with col2:
         st.metric(
-            label="Methane (NH₃) Increment",
-            value=f"{percentage_nh3:.2f}%",
+            label="Methane (NH₃)",
+            value=f"↑{percentage_nh3:.2f}%",
             delta_color="inverse"
         )
 
@@ -193,24 +193,44 @@ with col[0]:
     )
 
     st.divider()
+
+    # Custom CSS for left alignment
+    st.markdown(
+    """
+    <style>
+    .left-align {
+        display: flex;
+        justify-content: flex-start;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
     
     # Donut Charts for Energy
-    st.markdown('### ⚡ Energy Changes')
+    st.markdown('#### ⚡Energy Changes (2018 - 2022)')
     renewable_donut = make_donut(renewable_percentage_change, "Renewable Energy", "green")
     non_renewable_donut = make_donut(non_renewable_percentage_change, "Non-Renewable Energy", "red")
 
-    st.write("**Renewable Energy Change**")
-    st.altair_chart(renewable_donut, use_container_width=True)
-    
-    st.write("**Non-Renewable Energy Change**")
-    st.altair_chart(non_renewable_donut, use_container_width=True)
+    with st.container():
+        st.markdown('<div class="left-align">', unsafe_allow_html=True)
+        st.write("**Renewable Energy Change**")
+        st.altair_chart(renewable_donut, use_container_width=False)
+        st.markdown('</div>', unsafe_allow_html=True)
 
-st.markdown('</div>', unsafe_allow_html=True)
+    with st.container():
+        st.markdown('<div class="left-align">', unsafe_allow_html=True)
+        st.write("**Non-Renewable Energy Change**")
+        st.altair_chart(non_renewable_donut, use_container_width=False)
+        st.markdown('</div>', unsafe_allow_html=True)
+    
+    
+
 
 with col[1]:
     st.markdown(
         """
-        <div style="border-left: 2px solid gray; height: 900px; margin: auto;"></div>
+        <div style="border-left: 2px solid gray; height: 1200px; margin: auto;"></div>
         """,
         unsafe_allow_html=True
     )
@@ -278,7 +298,7 @@ with col[2]:
         data_to_plot = ghg_emissions  # Use GHG emissions dataset
 
     st.markdown("")
-    st.markdown(f"#### {dataset_choice} by Country (Interactive Map)")
+    st.markdown(f"#### {dataset_choice} by Country")
     
     
     # Get the year slider

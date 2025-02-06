@@ -144,63 +144,86 @@ renewable_percentage_change = ((renewable_2022 - renewable_2018) / renewable_201
 non_renewable_percentage_change = ((non_renewable_2022 - non_renewable_2018) / non_renewable_2018) * 100
 
 
-# Main Page
-col = st.columns((1.6, 6.4), gap='medium')
+
+
+# Main Page Layout
+
+#st.markdown("## Climate Change Tracker Dashboard")
+# Columns Layout
+col = st.columns((1.5,0.1, 6.4), gap='medium')
+
 # Column 1
 with col[0]:
+    
+    
     # Surface Temperature Increment
-    st.metric(label="Global Surface Temperature (2014 - 2024)", value=f"{absolute_increment:.2f}°C", delta=f"{percentage_increment:.2f}%", delta_color="inverse")
+    with st.container():
+        st.metric(
+            label="Global Surface Temperature (2014 - 2024)", 
+            value=f"{absolute_increment:.2f}°C", 
+            delta=f"{percentage_increment:.2f}%", 
+            delta_color="inverse"
+        )
     
-    
-    st.markdown('Green house gases emissions last decade')
+    st.divider()
+    st.markdown('### Greenhouse Gas Emissions (Last Decade)')
     col1, col2 = st.columns(2)
-    # For Nitrous Oxide (NO2)
+
     with col1:
         st.metric(
-            label="Increment (NO2)",
+            label="Nitrous Oxide (NO₂) Increment",
             value=f"{percentage_no2:.2f}%",
             delta_color="inverse"
         )
-    
-    # For Methane (NH3)
+
     with col2:
         st.metric(
-            label="Increment (NH3)",
+            label="Methane (NH₃) Increment",
             value=f"{percentage_nh3:.2f}%",
             delta_color="inverse"
         )
-    st.metric(label="Sea level rise last 5 year", value=f"{total_sea_rise_mm:.2f}mm", delta=f"{sea_level_percentage_change:.2f}%")
-    # Create Donut Charts
+
+    st.divider()
+    
+    # Sea Level Rise
+    st.metric(
+        label="🌊 Sea Level Rise (Last 5 Years)", 
+        value=f"{total_sea_rise_mm:.2f} mm", 
+        delta=f"{sea_level_percentage_change:.2f}%"
+    )
+
+    st.divider()
+    
+    # Donut Charts for Energy
+    st.markdown('### ⚡ Energy Changes')
     renewable_donut = make_donut(renewable_percentage_change, "Renewable Energy", "green")
     non_renewable_donut = make_donut(non_renewable_percentage_change, "Non-Renewable Energy", "red")
 
-    st.write("Renewable Energy Change")
-    st.altair_chart(renewable_donut,use_container_width=True)
-    st.write("Non-Renewable Energy Change")
-    st.altair_chart(non_renewable_donut,use_container_width=True)
-
+    st.write("**Renewable Energy Change**")
+    st.altair_chart(renewable_donut, use_container_width=True)
     
+    st.write("**Non-Renewable Energy Change**")
+    st.altair_chart(non_renewable_donut, use_container_width=True)
+
+st.markdown('</div>', unsafe_allow_html=True)
+
 with col[1]:
-      
+    st.markdown(
+        """
+        <div style="border-left: 2px solid gray; height: 900px; margin: auto;"></div>
+        """,
+        unsafe_allow_html=True
+    )
+
+with col[2]:
     col1, col2 = st.columns(2)
-    with col1: 
+    with col1:
         st.write('Sea level rise trend')
-        st.line_chart(sea_level.set_index('Day')['Global sea level as an average of Church and White (2011) and UHSLC data'])
-        # Dropdown to choose the dataset (for example: CO2 emissions, temperature anomalies)
-        dataset_choice = st.selectbox(
-            "Select Dataset to Visualize",
-            ["Annual CO2 Emissions", "Annual Temperature Anomalies", "GHG Emissions by Gas"]
-        )
-        # Filter your data based on the dataset choice (use corresponding DataFrame for selected dataset)
-        if dataset_choice == "Annual CO2 Emissions":
-            data_to_plot = carbon_emissions  # Use CO2 emissions dataset here
-        elif dataset_choice == "Annual Temperature Anomalies":
-            data_to_plot = annual_temp  # Use temperature anomaly dataset
-        elif dataset_choice == "GHG Emissions by Gas":
-            data_to_plot = ghg_emissions  # Use GHG emissions dataset
-    with col2: 
+        st.line_chart(sea_level.set_index('Day')['Global sea level as an average of Church and White (2011) and UHSLC data'], height=500)
+
+    with col2:
         # Option to Select Chart Type (Horizontal)
-        chart_type = st.radio("Energy type classification",('Bar Chart', 'Line Chart'), horizontal=True)
+        chart_type = st.radio("Energy type classification", ('Bar Chart', 'Line Chart'), horizontal=True)
 
         if chart_type == 'Bar Chart':
             # Dropdown for Year Selection
@@ -221,7 +244,7 @@ with col[1]:
                 color='Energy (TWh)',
                 color_continuous_scale='Blues'
             )
-            st.plotly_chart(fig)
+            st.plotly_chart(fig, use_container_width=True)
 
         else:
             # Line Chart (Across All Years)
@@ -236,13 +259,27 @@ with col[1]:
                 y='Energy (TWh)',
                 color='Energy Source',
                 title='Energy Substitution Over the Years',
-                markers=True
+                markers=True,
+                height=500
             )
-
-           
             st.plotly_chart(fig)
+    # Dropdown to choose the dataset (for example: CO2 emissions, temperature anomalies)
+    dataset_choice = st.selectbox(
+            "Select Dataset to Visualize",
+            ["Annual CO2 Emissions", "Annual Temperature Anomalies", "GHG Emissions by Gas"]
+        )
+        
+    # Filter your data based on the dataset choice (use corresponding DataFrame for selected dataset)
+    if dataset_choice == "Annual CO2 Emissions":
+        data_to_plot = carbon_emissions  # Use CO2 emissions dataset here
+    elif dataset_choice == "Annual Temperature Anomalies":
+        data_to_plot = annual_temp  # Use temperature anomaly dataset
+    elif dataset_choice == "GHG Emissions by Gas":
+        data_to_plot = ghg_emissions  # Use GHG emissions dataset
 
+    st.markdown("")
     st.markdown(f"#### {dataset_choice} by Country (Interactive Map)")
+    
     
     # Get the year slider
     year_slider = st.slider(
@@ -271,6 +308,8 @@ with col[1]:
     color_continuous_scale="RdBu_r",
     title=f"{dataset_choice} for {year_slider}",
     labels={"Annual CO₂ emissions": "CO₂ Emissions (Tons)", "Temperature anomaly":"Temperature(°C)"},
+    height=800
+
     )
          
     st.plotly_chart(fig)

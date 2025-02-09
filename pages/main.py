@@ -13,7 +13,7 @@ st.set_page_config(
 
 selected = option_menu(
     menu_title=None,
-    options=["Dashboard", "Analytics", "Fun"],
+    options=["Dashboard", "Insights", "Fun"],
     default_index=0,
     orientation="horizontal",
     styles= {
@@ -30,5 +30,5 @@ if selected == "Dashboard":
     dash()
 if selected == "Fun":
     fun()
-if selected == "Analytics":
+if selected == "Insights":
     analytics()

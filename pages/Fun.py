@@ -129,16 +129,22 @@ def fun():
                     st.error("❌ Let's learn why:")
                     # Add fun facts/explanations
                     fun_facts = [
-                        "CO₂ accounts for 76% of greenhouse gas emissions!",
-                        "Oceans absorb 30% of our CO₂ emissions - but it's making them acidic!",
-                        "Beef production creates 60kg CO₂ per kg - 60x more than peas!",
-                        "The Arctic could be ice-free in summer by 2030! 😱",
-                        "Solar panel costs dropped 82% in the last decade! ☀️",
-                        "A single tree can absorb 21kg CO₂ per year! 🌳",
-                        "The energy sector emits 73% of global CO₂! ⚡",
-                        "Food waste creates 8% of global emissions - more than airlines! ✈️",
-                        "1.6 trillion trees = 1,000 trees for every person on Earth!",
-                        "Phytoplankton produce 50% of Earth's oxygen! 🌊"
+                        "CO₂ accounts for 76% of greenhouse gas emissions! CO₂ accounts for 76% of global greenhouse gas emissions !💡 Fun Fact: Humans release about 40 billion tons of CO₂ yearly — equivalent to *1.3 million fully loaded dump trucks every day! 🚚",
+                        "Sea levels rose ~20 cm since 1900, but it’s accelerating — 3.7 mm/year now vs. 1.4 mm/year last century! 🌊 Fun Fact: This is like stacking 10 iPhones vertically across all coastlines! 📱",
+                        "Beef produces 60 kg CO₂ per kg — 60x more than peas! 🍔 Fun Fact: One hamburger’s emissions = driving a car 15 km! 🚗",
+                        "Half of Arctic sea ice volume has melted since 1979. At this rate, summers could be ice-free by 2030!❄️ Fun Fact: Polar bears now swim 400 km nonstop to find ice — a marathon a day! 🐾",
+                        "SSolar capacity grew 22% annually — costs dropped 82% in 10 years! ☀️ Fun Fact: Every hour, enough sunlight hits Earth to power humanity for a year! 🌍",
+                        "2023 smashed 86+ records — hottest oceans, most wildfires, and extreme storms.🔥 Fun Fact: July 2023 was so hot, scientists called it “Hell on Earth” for 10 days straight. 😰",
+                        "The US emitted 25% of all CO₂ since 1850 — more than China + EU combined! Fun Fact: The average American’s carbon footprint = 17 Indians! 👣",
+                        "Exceeding 1.5°C risks coral reef extinction, extreme droughts, and coastal flooding.🌡️ Fun Fact: 1.5°C is like a human fever of 38.5°C — survivable but dangerous! 🤒",
+                        "Polar bears rely on ice to hunt seals. No ice = starvation and drowning.🐻❄️ Fun Fact: A polar bear’s stomach can hold 15% of its body weight — like you eating 90 burgers! 🍔",
+                        "Wasted food causes 8% of emissions — more than aviation + shipping combined! 🗑️ Fun Fact: Throwing away 1 banana = 10g CO₂, but 1 beef burger = 3 kg CO₂! 🥩"
+                        "Jakarta sinks 25 cm/year due to groundwater pumping + sea rise. 🏙️ Fun Fact: Indonesia plans to move its capital to Borneo by 2045 to escape flooding! 🚚"
+                        "Renewables now power 30% of global electricity, up from 20% in 2010!⚡ Fun Fact: A single wind turbine powers 1,500 homes annually! 🌬️"
+                        "Energy (mostly coal/oil) creates 73% of emissions — 30x more than aviation!🏭 Fun Fact: Bitcoin mining uses 0.5% of global electricity — more than Finland! 💻"
+                        "We’d need 1,000 trees/person to absorb current CO₂. But we cut down 15 billion/year!🌳 Fun Fact: Trees also reduce crime, stress, and hospital visits in cities! 😊"
+                        "These tiny algae absorb 30% of human CO₂ and produce 50% of Earth’s oxygen! 🌊 Fun Fact: Phytoplankton blooms are visible from space — like underwater auroras! 🛰️"
+                    
                     ]
                     st.info(fun_facts[i % len(fun_facts)])
         

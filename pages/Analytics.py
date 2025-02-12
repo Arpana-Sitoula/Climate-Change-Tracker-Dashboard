@@ -7,44 +7,75 @@ from sklearn.linear_model import LinearRegression
 import plotly.express as px
 
 
-
-
-
-carbon_emissions, annual_temp, ghg_emissions, data_iso, energy_subs, sea_level = load_data()
+carbon_emissions, annual_temp, ghg_emissions, data_iso, energy_subs, sea_level, disaster = load_data()
+# Data preparation
+total_disaster = pd.melt(disaster, id_vars=['ISO3'], var_name='Year', value_name='Disaster_Count')
+total_disaster = total_disaster[total_disaster['Year'].str.isnumeric()]
+total_disaster['Year'] = total_disaster['Year'].astype(int)
+total_disaster['Disaster_Count'] = total_disaster['Disaster_Count'].fillna(0)
+total_disaster.rename(columns={'ISO3': 'iso'}, inplace=True)
+total_disaster = total_disaster.merge(data_iso, on='iso', how='left')
+total_disaster.rename(columns={'name': 'Entity'}, inplace=True)
 
 def compare_countries(country1, country2):
     # Filter the data for the selected countries
     country1_data = carbon_emissions[carbon_emissions['Entity'] == country1]
     country2_data = carbon_emissions[carbon_emissions['Entity'] == country2]
 
-    # You can do this for other datasets as well, such as GHG emissions, temperature, etc.
     country1_temp = annual_temp[annual_temp['Entity'] == country1]
     country2_temp = annual_temp[annual_temp['Entity'] == country2]
 
-    # Comparison: GHG Emissions
     country1_ghg = ghg_emissions[ghg_emissions['Entity'] == country1]
     country2_ghg = ghg_emissions[ghg_emissions['Entity'] == country2]
 
+    country1_disaster = total_disaster[total_disaster['Entity'] == country1]
+    country2_disaster = total_disaster[total_disaster['Entity'] == country2]
+
+
+    # Get the latest year for temperature anomaly
+    latest_year = max(annual_temp['Year'])
+    temp1_latest = country1_temp[country1_temp['Year'] == latest_year]['Temperature anomaly'].values
+    temp2_latest = country2_temp[country2_temp['Year'] == latest_year]['Temperature anomaly'].values
+
+    temp1_latest = temp1_latest[0] if len(temp1_latest) > 0 else None
+    temp2_latest = temp2_latest[0] if len(temp2_latest) > 0 else None
+
+    disaster1_latest = country1_disaster[country1_disaster['Year'] == 2023]['Disaster_Count'].values
+    disaster2_latest = country2_disaster[country2_disaster['Year'] == 2023]['Disaster_Count'].values
+
+    disaster1_latest = disaster1_latest[0] if len(disaster1_latest) > 0 else None
+    disaster2_latest = disaster2_latest[0] if len(disaster2_latest) > 0 else None
+    # Calculate totals
+    co2_1 = country1_data['Annual CO₂ emissions'].sum()
+    co2_2 = country2_data['Annual CO₂ emissions'].sum()
+    ghg_1 = country1_ghg['Annual CO₂ emissions'].sum()
+    ghg_2 = country2_ghg['Annual CO₂ emissions'].sum()
+
+    # Calculate percentage difference
+    def percentage_diff(a, b):
+        if a + b == 0:
+            return 0
+        return round((abs(a - b) / ((a + b) / 2)) * 100, 2)
+
+    co2_diff = percentage_diff(co2_1, co2_2)
+    ghg_diff = percentage_diff(ghg_1, ghg_2)
+
+
+    # Comparison Data
     comparison_data = {
-        'country' : [country1, country2],
-        'CO2 Emissions (MtCO2)': [
-            country1_data['Annual CO₂ emissions'].sum(),
-            country2_data['Annual CO₂ emissions'].sum()
-        ],
-          'GHG Emissions (ktCO₂e)': [
-            country1_ghg['Annual CO₂ emissions'].sum(),
-            country2_ghg['Annual CO₂ emissions'].sum()
-        ],
-          'Temperature Anomaly (°C)': [
-            country1_temp['Temperature anomaly'].mean(),
-            country2_temp['Temperature anomaly'].mean()
-        ]
+        'Country': [country1, country2],
+        'CO2 Emissions (MtCO2)': [co2_1, co2_2],
+        'CO2 % Difference': [f"{co2_diff}%", f"{co2_diff}%"],
+        'GHG Emissions (ktCO₂e)': [ghg_1, ghg_2],
+        'GHG % Difference': [f"{ghg_diff}%", f"{ghg_diff}%"],
+        'Temperature Anomaly (°C)': [temp1_latest, temp2_latest],
+        'Total Disaster' : [disaster1_latest, disaster2_latest],
     }
 
-    # Convert the dictionary into a DataFrame
     comparison_df = pd.DataFrame(comparison_data)
 
     return comparison_df
+
     
 st.markdown(
     """
@@ -64,7 +95,7 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-carbon_emissions, annual_temp, ghg_emissions, data_iso, energy_subs, sea_level = load_data()
+carbon_emissions, annual_temp, ghg_emissions, data_iso, energy_subs, sea_level, disaster = load_data()
 # data preparation
 sea_level['Day'] = pd.to_datetime(sea_level['Day'])
 sea_level['Year'] = sea_level['Day'].dt.year
@@ -144,7 +175,6 @@ def analytics():
         world_data = merged[merged['Entity'] == 'World']
         world_data = world_data.dropna(subset=['Annual CO₂ emissions', 'Temperature anomaly'])
 
-    # Models for all three indicators (all linear)
         # --------------------------------------------
         # CO2 Model
         X = world_data[['Year']]

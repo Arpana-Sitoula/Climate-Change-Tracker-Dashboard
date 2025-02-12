@@ -1,15 +1,22 @@
 import streamlit as st
 import pandas as pd
-import altair as alt
 import plotly.express as px
-import plotly.graph_objects as go
 from functions.donut import make_donut
 from data.data import load_data 
 
 
 
 #load data
-carbon_emissions, annual_temp, ghg_emissions, data_iso, energy_subs, sea_level = load_data()
+carbon_emissions, annual_temp, ghg_emissions, data_iso, energy_subs, sea_level, disaster = load_data()
+
+# Data preparation
+total_disaster = pd.melt(disaster, id_vars=['ISO3'], var_name='Year', value_name='Disaster_Count')
+total_disaster = total_disaster[total_disaster['Year'].str.isnumeric()]
+total_disaster['Year'] = total_disaster['Year'].astype(int)
+total_disaster['Disaster_Count'] = total_disaster['Disaster_Count'].fillna(0)
+total_disaster.rename(columns={'ISO3': 'iso'}, inplace=True)
+total_disaster = total_disaster.merge(data_iso, on='iso', how='left')
+total_disaster.rename(columns={'name': 'Entity'}, inplace=True)
 
 
 # Main Streamlit app
@@ -18,6 +25,7 @@ datasets = {
     "Annual CO2 Emissions": carbon_emissions,
     "Annual Temperature Anomalies": annual_temp,
     "GHG Emissions by Gas": ghg_emissions,
+    "Disaster caused by Climate Change": total_disaster,
    
 }
 
@@ -25,7 +33,9 @@ color_mapping = {
     "Annual CO2 Emissions": "Annual CO₂ emissions",
     "Annual Temperature Anomalies": "Temperature anomaly",
     "GHG Emissions by Gas": "Annual CO₂ emissions", 
+    "Disaster Caused by Climate Change": "Disaster_Count",
 }
+
 
 # Calculations
 # surface temperature increment calculations
@@ -173,7 +183,7 @@ def dash():
     with col[1]:
         st.markdown(
             """
-            <div style="border-left: 2px solid gray; height: 1200px; margin: auto;"></div>
+            <div style="border-left: 2px solid gray; height: 1500px; margin: auto;"></div>
             """,
             unsafe_allow_html=True
         )
@@ -229,7 +239,7 @@ def dash():
         # Dropdown to choose the dataset (for example: CO2 emissions, temperature anomalies)
         dataset_choice = st.selectbox(
                 "Select Dataset to Visualize",
-                ["Annual CO2 Emissions", "Annual Temperature Anomalies", "GHG Emissions by Gas"]
+                ["Annual CO2 Emissions", "Annual Temperature Anomalies", "GHG Emissions by Gas","Disaster Caused by Climate Change"]
             )
             
         # Filter your data based on the dataset choice (use corresponding DataFrame for selected dataset)
@@ -239,6 +249,11 @@ def dash():
             data_to_plot = annual_temp  # Use temperature anomaly dataset
         elif dataset_choice == "GHG Emissions by Gas":
             data_to_plot = ghg_emissions  # Use GHG emissions dataset
+        elif dataset_choice == "Disaster Caused by Climate Change":
+            data_to_plot = total_disaster # Use disaster dataset
+        else:
+            data_to_plot = pd.DataFrame()
+
 
         st.markdown("")
         st.markdown(f"#### {dataset_choice} by Country")
@@ -270,7 +285,7 @@ def dash():
         range_color=[lower_bound, upper_bound],    
         color_continuous_scale="RdBu_r",
         title=f"{dataset_choice} for {year_slider}",
-        labels={"Annual CO₂ emissions": "CO₂ Emissions (Tons)", "Temperature anomaly":"Temperature(°C)"},
+        labels={"Annual CO₂ emissions": "CO₂ Emissions (Tons)", "Temperature anomaly":"Temperature(°C)","Disaster caused by Climate Change":"Disaster Count"},
         height=800
 
         )

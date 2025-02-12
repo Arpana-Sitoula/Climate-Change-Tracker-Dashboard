@@ -8,5 +8,9 @@ def load_data():
     data_iso = pd.read_csv(r"C:\Users\arpan\Desktop\datasets\Global Primary Forest loss\iso_metadata.csv")
     energy_subs = pd.read_csv(r"C:\Users\arpan\Desktop\datasets\global-energy-substitution\global-energy-substitution.csv")
     sea_level = pd.read_csv(r"C:\Users\arpan\Desktop\datasets\sea-level\sea-level.csv")
+    disaster = pd.read_csv(r"C:\Users\arpan\Desktop\datasets\disaster.csv")
 
-    return carbon_emissions, annual_temp, ghg_emissions, data_iso, energy_subs, sea_level
+
+    
+
+    return carbon_emissions, annual_temp, ghg_emissions, data_iso, energy_subs, sea_level, disaster

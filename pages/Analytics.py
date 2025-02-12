@@ -3,6 +3,7 @@ import pandas as pd
 import streamlit as st
 from data.data import load_data 
 import plotly.graph_objects as go
+import plotly.subplots as sp
 from sklearn.linear_model import LinearRegression
 import plotly.express as px
 
@@ -16,6 +17,9 @@ total_disaster['Disaster_Count'] = total_disaster['Disaster_Count'].fillna(0)
 total_disaster.rename(columns={'ISO3': 'iso'}, inplace=True)
 total_disaster = total_disaster.merge(data_iso, on='iso', how='left')
 total_disaster.rename(columns={'name': 'Entity'}, inplace=True)
+import plotly.graph_objects as go
+import plotly.subplots as sp
+import pandas as pd
 
 def compare_countries(country1, country2):
     # Filter the data for the selected countries
@@ -31,7 +35,6 @@ def compare_countries(country1, country2):
     country1_disaster = total_disaster[total_disaster['Entity'] == country1]
     country2_disaster = total_disaster[total_disaster['Entity'] == country2]
 
-
     # Get the latest year for temperature anomaly
     latest_year = max(annual_temp['Year'])
     temp1_latest = country1_temp[country1_temp['Year'] == latest_year]['Temperature anomaly'].values
@@ -43,8 +46,9 @@ def compare_countries(country1, country2):
     disaster1_latest = country1_disaster[country1_disaster['Year'] == 2023]['Disaster_Count'].values
     disaster2_latest = country2_disaster[country2_disaster['Year'] == 2023]['Disaster_Count'].values
 
-    disaster1_latest = disaster1_latest[0] if len(disaster1_latest) > 0 else None
-    disaster2_latest = disaster2_latest[0] if len(disaster2_latest) > 0 else None
+    disaster1_latest = disaster1_latest.sum()
+    disaster2_latest = disaster2_latest.sum()
+
     # Calculate totals
     co2_1 = country1_data['Annual CO₂ emissions'].sum()
     co2_2 = country2_data['Annual CO₂ emissions'].sum()
@@ -60,21 +64,24 @@ def compare_countries(country1, country2):
     co2_diff = percentage_diff(co2_1, co2_2)
     ghg_diff = percentage_diff(ghg_1, ghg_2)
 
-
-    # Comparison Data
     comparison_data = {
-        'Country': [country1, country2],
-        'CO2 Emissions (MtCO2)': [co2_1, co2_2],
-        'CO2 % Difference': [f"{co2_diff}%", f"{co2_diff}%"],
-        'GHG Emissions (ktCO₂e)': [ghg_1, ghg_2],
-        'GHG % Difference': [f"{ghg_diff}%", f"{ghg_diff}%"],
-        'Temperature Anomaly (°C)': [temp1_latest, temp2_latest],
-        'Total Disaster' : [disaster1_latest, disaster2_latest],
-    }
+    'Parameter': [
+        'CO2 Emissions (MtCO2)',
+        'CO2 % Difference',
+        'GHG Emissions (ktCO₂e)',
+        'GHG % Difference',
+        'Temperature Anomaly (°C)',
+        'Total Disaster'
+    ],
+    country1: [co2_1, f"{co2_diff}%", ghg_1, f"{ghg_diff}%", temp1_latest, disaster1_latest],
+    country2: [co2_2, f"{co2_diff}%", ghg_2, f"{ghg_diff}%", temp2_latest, disaster2_latest]
+}
 
     comparison_df = pd.DataFrame(comparison_data)
+    comparison_df.set_index('Parameter', inplace=True)
 
     return comparison_df
+# 
 
     
 st.markdown(

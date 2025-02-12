@@ -235,6 +235,12 @@ def dash():
                     markers=True,
                     height=500
                 )
+                fig.update_layout(
+                legend=dict(
+                title="Energy Source", 
+                tracegroupgap=10  
+            )
+    )
                 st.plotly_chart(fig)
         # Dropdown to choose the dataset (for example: CO2 emissions, temperature anomalies)
         dataset_choice = st.selectbox(

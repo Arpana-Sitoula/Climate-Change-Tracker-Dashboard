@@ -1,0 +1,27 @@
+{
+  "chart": {
+    "title": "Forest area",
+    "subtitle": "Forest area is land under natural or planted stands of trees of at least 5 meters in situ, whether productive or not, and excludes tree stands in agricultural production systems.",
+    "citation": "Food and Agriculture Organization of the United Nations",
+    "originalChartUrl": "https://ourworldindata.org/grapher/forest-area-km?v=1&csvType=full&useColumnShortNames=false",
+    "selection": [
+      "World"
+    ]
+  },
+  "columns": {
+    "Forest area": {
+      "titleShort": "Forest area",
+      "titleLong": "Forest area",
+      "unit": "",
+      "timespan": "",
+      "type": "Numeric",
+      "conversionFactor": 1000,
+      "owidVariableId": 145182,
+      "citationShort": " – processed by Our World in Data",
+      "citationLong": " – processed by Our World in Data. “Forest area” [dataset]. UN Food and Agriculture Organization (FAO). Forest Resources Assessment. [original data].",
+      "fullMetadata": "https://api.ourworldindata.org/v1/indicators/145182.metadata.json"
+    }
+  },
+  "dateDownloaded": "2025-02-06",
+  "activeFilters": {}
+}

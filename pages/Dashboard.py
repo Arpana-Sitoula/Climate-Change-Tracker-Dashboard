@@ -201,7 +201,11 @@ def dash():
             if chart_type == 'Bar Chart':
                 # Dropdown for Year Selection
                 years = energy_subs['Year'].unique()
-                selected_year = st.selectbox('Select Year:', sorted(years))
+                latest_year = years[-1]  # Get the most recent year
+
+                # Convert years to a list to use .index()
+                years_list = list(years)
+                selected_year = st.selectbox('Select Year:', years_list, index=years_list.index(latest_year))
 
                 # Filter Data for Selected Year
                 year_data = energy_subs[energy_subs['Year'] == selected_year].set_index('Year').transpose()

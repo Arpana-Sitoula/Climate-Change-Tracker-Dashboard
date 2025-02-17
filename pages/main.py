@@ -1,8 +1,4 @@
 import streamlit as st
-from streamlit_option_menu import option_menu
-from Fun import fun
-from Dashboard import dash
-from Analytics import analytics
 
 #Page configuration
 st.set_page_config(
@@ -11,6 +7,10 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded")
 
+from streamlit_option_menu import option_menu
+from Fun import fun
+from Dashboard import dash
+from Analytics import analytics
 selected = option_menu(
     menu_title=None,
     options=["Dashboard", "Insights", "Fun"],

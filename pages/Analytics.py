@@ -17,9 +17,7 @@ total_disaster['Disaster_Count'] = total_disaster['Disaster_Count'].fillna(0)
 total_disaster.rename(columns={'ISO3': 'iso'}, inplace=True)
 total_disaster = total_disaster.merge(data_iso, on='iso', how='left')
 total_disaster.rename(columns={'name': 'Entity'}, inplace=True)
-import plotly.graph_objects as go
-import plotly.subplots as sp
-import pandas as pd
+
 
 def compare_countries(country1, country2):
     # Filter the data for the selected countries

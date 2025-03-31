@@ -3,7 +3,6 @@ import pandas as pd
 import plotly.express as px
 from functions.donut import make_donut
 from data.data import load_data 
-from statsmodels.tsa.arima.model import ARIMA
 
 
 

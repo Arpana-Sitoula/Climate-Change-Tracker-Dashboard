@@ -138,7 +138,7 @@ def analytics():
         # Slider for CO2 emissions
         emissions = st.slider("Select CO₂ Emissions (GtCO₂)", min_value=0, max_value=3000, value=500, step=50)
 
-        # Fixed or dynamically calculated values (adjust based on your data)
+       
         TCR = 1.65  # Default average value from IPCC reports
         ECS = 3.0   # Default average ECS value
 
@@ -162,6 +162,7 @@ def analytics():
         fig = go.Figure(data=[
             go.Bar(name='Transient Warming', x=['TCR'], y=[TCR_temp_rise], marker_color='skyblue'),
             go.Bar(name='Equilibrium Warming', x=['ECS'], y=[ECS_temp_rise], marker_color='salmon')
+            
         ])
 
         # Customize layout
@@ -336,7 +337,11 @@ def analytics():
         # Configure axes and layout
         fig_debug.update_layout(
             title='Historical Trends',
-            xaxis=dict(title='Year'),
+            xaxis = dict(title='Year',showline=True,showgrid=False,showticklabels=True,linecolor='rgb(0, 0, 0)',linewidth=2,ticks='outside', tickfont=dict(
+            family='Arial',
+            size=12,
+            color='rgb(82, 82, 82)',
+        ),),
             yaxis=dict(title='CO₂ Emissions (Mt)', color='#636EFA'),
             yaxis2=dict(
                 title='Temperature Anomaly (°C)',
@@ -350,7 +355,7 @@ def analytics():
                 overlaying='y',
                 side='right',
                 position=0.95  # Adjust position to avoid overlap
-            )
+            ),
         )
 
         st.plotly_chart(fig_debug, use_container_width=True)

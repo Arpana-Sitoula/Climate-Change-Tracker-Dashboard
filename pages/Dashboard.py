@@ -3,6 +3,7 @@ import pandas as pd
 import plotly.express as px
 from functions.donut import make_donut
 from data.data import load_data 
+from statsmodels.tsa.arima.model import ARIMA
 
 
 
@@ -65,7 +66,7 @@ percentage_nh3 = (inc_nh3/ start_nh3) * 100
 #sealevel data preparation
 sea_level['Day'] = pd.to_datetime(sea_level['Day'])
 sea_level = sea_level.sort_values(by='Day')
-    # Filter data for the last 5 years
+# Filter data for the last 5 years
 last_date = sea_level['Day'].max()
 five_years_ago = last_date - pd.DateOffset(years=5)
 last_five_years_data = sea_level[sea_level['Day'] >= five_years_ago]
@@ -103,7 +104,7 @@ non_renewable_percentage_change = ((non_renewable_2022 - non_renewable_2018) / n
 #st.markdown("## Climate Change Tracker Dashboard")
 # Columns Layout
 def dash():
-    col = st.columns((1.5,0.1, 6.4), gap='medium')
+    col = st.columns((1.6,0.1, 6.3), gap='small')
 
     # Column 1
     with col[0]:
@@ -124,15 +125,14 @@ def dash():
 
         with col1:
             st.metric(
-                label="Nitrous Oxide (NO₂)",
-                value=f"↑{percentage_no2:.2f} %",
+                label="(NO₂)",
+                value=f"↑{percentage_no2:.1f} %",
                 delta_color="inverse"
             )
-
         with col2:
             st.metric(
-                label="Methane (NH₃)",
-                value=f"↑{percentage_nh3:.2f}%",
+                label="(NH₃)",
+                value=f"↑{percentage_nh3:.1f}%",
                 delta_color="inverse"
             )
 
@@ -236,7 +236,7 @@ def dash():
                     y='Energy (TWh)',
                     color='Energy Source',
                     title='Energy Substitution Over the Years',
-                    markers=True,
+                    markers=False,
                     height=500
                 )
                 fig.update_layout(
@@ -292,7 +292,8 @@ def dash():
         locations="Entity",
         locationmode="country names",
         color=color_column,
-        range_color=[lower_bound, upper_bound],    
+        range_color=[lower_bound, upper_bound],  
+        animation_frame="Year",  
         color_continuous_scale="RdBu_r",
         title=f"{dataset_choice} for {year_slider}",
         labels={"Annual CO₂ emissions": "CO₂ Emissions (Tons)", "Temperature anomaly":"Temperature(°C)","Disaster caused by Climate Change":"Disaster Count"},
